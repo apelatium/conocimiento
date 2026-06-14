@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% block title %}Registrarse - EduStream{% endblock %}
+
+{% block content %}
+<div class="auth-wrapper">
+    <div class="auth-card">
+        <div class="auth-header">
+            <h2>Crear Cuenta</h2>
+            <p>Únete para empezar a aprender</p>
+        </div>
+
+        <form method="POST">
+            {% csrf_token %}
+            
+            {% for field in form %}
+                <div class="form-group">
+                    <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                    {{ field }}
+                    {% if field.help_text %}
+                        <small style="color: var(--text-muted); display: block; margin-top: 0.25rem; font-size: 0.8rem;">
+                            {{ field.help_text }}
+                        </small>
+                    {% endif %}
+                    {% for error in field.errors %}
+                        <span style="color: var(--danger); font-size: 0.8rem; display: block; margin-top: 0.25rem;">
+                            {{ error }}
+                        </span>
+                    {% endfor %}
+                </div>
+            {% endfor %}
+
+            <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">Crear Cuenta</button>
+        </form>
+
+        <div class="auth-footer">
+            ¿Ya tienes cuenta? <a href="{% url 'login' %}">Inicia sesión</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

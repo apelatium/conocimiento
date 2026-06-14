@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% block title %}Cuenta Pendiente - EduStream{% endblock %}
+
+{% block content %}
+<div class="auth-wrapper">
+    <div class="auth-card" style="text-align: center;">
+        <div class="pending-icon">⏳</div>
+        <h2 style="font-weight: 700; margin-bottom: 1rem;">Cuenta en espera</h2>
+        <p style="color: var(--text-muted); line-height: 1.6; margin-bottom: 2rem;">
+            Hola <strong>{{ username }}</strong>, tu cuenta ha sido creada exitosamente, pero requiere la <strong>validación de un administrador</strong> antes de que puedas acceder al contenido de los cursos.
+        </p>
+        <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 2rem; border-top: 1px solid var(--border-color); padding-top: 1rem;">
+            Por favor, ponte en contacto con el administrador del sistema para activar tu acceso.
+        </p>
+        <a href="{% url 'login' %}" class="btn btn-secondary" style="width: 100%;">Volver al Login</a>
+    </div>
+</div>
+{% endblock %}

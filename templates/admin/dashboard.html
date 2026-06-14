@@ -1,0 +1,160 @@
+{% extends 'base.html' %}
+{% block title %}Panel de Control de Administrador - EduStream{% endblock %}
+
+{% block content %}
+<div style="margin-bottom: 2rem;">
+    <h1 class="dashboard-title">Panel de Control</h1>
+    <p class="dashboard-subtitle">Administra los accesos de usuario, cursos, módulos y videos.</p>
+</div>
+
+<!-- SECTION 1: USER VALIDATION -->
+<div class="admin-section">
+    <div class="section-header">
+        <h3>Validación de Usuarios</h3>
+    </div>
+    
+    {% if pending_users %}
+        <h4 style="margin-bottom: 1rem; color: var(--warning); font-size: 0.95rem;">Pendientes de Aprobación ({{ pending_users.count }})</h4>
+        <div class="table-wrapper" style="margin-bottom: 2rem;">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Usuario</th>
+                        <th>Email</th>
+                        <th>Estado</th>
+                        <th>Acción</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for u in pending_users %}
+                        <tr>
+                            <td>
+                                <div class="user-cell">
+                                    <div class="user-avatar">{{ u.username|slice:":1"|upper }}</div>
+                                    <span>{{ u.username }}</span>
+                                </div>
+                            </td>
+                            <td>{{ u.email }}</td>
+                            <td><span style="color: var(--warning); font-weight: 600;">Pendiente</span></td>
+                            <td>
+                                <a href="{% url 'approve_user' u.id %}" class="btn btn-accent btn-sm">Aprobar Acceso</a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 2rem;">No hay usuarios esperando validación.</p>
+    {% endif %}
+
+    {% if active_users %}
+        <h4 style="margin-bottom: 1rem; color: var(--success); font-size: 0.95rem;">Usuarios Activos / Validados ({{ active_users.count }})</h4>
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Usuario</th>
+                        <th>Email</th>
+                        <th>Estado</th>
+                        <th>Acción</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for u in active_users %}
+                        <tr>
+                            <td>
+                                <div class="user-cell">
+                                    <div class="user-avatar" style="background: var(--success);">{{ u.username|slice:":1"|upper }}</div>
+                                    <span>{{ u.username }}</span>
+                                </div>
+                            </td>
+                            <td>{{ u.email }}</td>
+                            <td><span style="color: var(--success); font-weight: 600;">Validado</span></td>
+                            <td>
+                                <a href="{% url 'suspend_user' u.id %}" class="btn btn-danger btn-sm">Suspender</a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% endif %}
+</div>
+
+<!-- SECTION 2: CONTENT MANAGEMENT -->
+<div class="admin-section">
+    <div class="section-header">
+        <h3>Estructura de Cursos y Contenido</h3>
+        <a href="{% url 'course_create' %}" class="btn btn-primary btn-sm">+ Agregar Curso</a>
+    </div>
+
+    {% if courses %}
+        <div class="course-tree-list">
+            {% for course in courses %}
+                <div class="course-tree-item">
+                    <div class="course-tree-header">
+                        <div>
+                            <span class="course-tree-title">📚 <strong>{{ course.title }}</strong></span>
+                            <small style="color: var(--text-muted); margin-left: 0.75rem;">({{ course.modules.count }} Módulos)</small>
+                        </div>
+                        <div class="course-tree-actions">
+                            <a href="{% url 'module_create' course.id %}" class="btn btn-accent btn-sm">+ Modulo</a>
+                            <a href="{% url 'course_edit' course.id %}" class="btn btn-secondary btn-sm">Editar</a>
+                            <a href="{% url 'course_delete' course.id %}" class="btn btn-danger btn-sm">Eliminar</a>
+                        </div>
+                    </div>
+                    
+                    {% if course.modules.all %}
+                        <div class="module-tree-list">
+                            {% for module in course.modules.all %}
+                                <div style="margin-bottom: 1rem;">
+                                    <div class="module-tree-item">
+                                        <div>
+                                            <span>📦 Módulo {{ module.order }}: <strong>{{ module.title }}</strong></span>
+                                            <small style="color: var(--text-muted); margin-left: 0.5rem;">({{ module.videos.count }} Videos)</small>
+                                        </div>
+                                        <div class="course-tree-actions">
+                                            <a href="{% url 'video_create' module.id %}" class="btn btn-accent btn-sm" style="padding: 0.2rem 0.5rem; font-size: 0.8rem;">+ Video</a>
+                                            <a href="{% url 'module_edit' module.pk %}" class="btn btn-secondary btn-sm" style="padding: 0.2rem 0.5rem; font-size: 0.8rem;">Editar</a>
+                                            <a href="{% url 'module_delete' module.pk %}" class="btn btn-danger btn-sm" style="padding: 0.2rem 0.5rem; font-size: 0.8rem;">Eliminar</a>
+                                        </div>
+                                    </div>
+                                    
+                                    {% if module.videos.all %}
+                                        <div class="video-tree-list">
+                                            {% for video in module.videos.all %}
+                                                <div class="video-tree-item">
+                                                    <div>
+                                                        <span>▶ Video {{ video.order }}: {{ video.title }}</span>
+                                                        <a href="{{ video.video_url }}" target="_blank" style="color: var(--secondary); font-size: 0.8rem; margin-left: 0.5rem; text-decoration: underline;">[Ver enlace]</a>
+                                                    </div>
+                                                    <div class="course-tree-actions">
+                                                        <a href="{% url 'video_edit' video.pk %}" class="btn btn-secondary btn-sm" style="padding: 0.1rem 0.4rem; font-size: 0.75rem;">Editar</a>
+                                                        <a href="{% url 'video_delete' video.pk %}" class="btn btn-danger btn-sm" style="padding: 0.1rem 0.4rem; font-size: 0.75rem;">Eliminar</a>
+                                                    </div>
+                                                </div>
+                                            {% endfor %}
+                                        </div>
+                                    {% else %}
+                                        <p style="padding-left: 2.5rem; color: var(--text-muted); font-size: 0.85rem; margin-bottom: 0.5rem;">Aún no hay videos en este módulo.</p>
+                                    {% endif %}
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="module-tree-list" style="color: var(--text-muted); font-size: 0.9rem;">
+                            Aún no hay módulos agregados a este curso.
+                        </div>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="empty-state">
+            <h4>No hay cursos registrados</h4>
+            <p>Comienza creando un curso para estructurar tus módulos y videos.</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
