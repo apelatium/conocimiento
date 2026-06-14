@@ -1,6 +1,0 @@
-Django==5.2.15
-gunicorn
-psycopg2-binary
-dj-database-url
-whitenoise
-python-dotenv
